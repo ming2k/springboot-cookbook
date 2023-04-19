@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS}  %-5level ${PID:- } --- [%15thread] %-40(%.40logger{36}) : %msg%n" />
+    <property file="application.properties" />
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="STASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <destination>${logback.elasticsearchUrl}</destination>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>${logback.customFields}</customFields>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>log/app.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- monthly rollover -->
+            <fileNamePattern>log/archived/app.%d{yyyy-MM}.%i.log.zip</fileNamePattern>
+            <!-- archived file size max 50MB -->
+            <maxFileSize>50MB</maxFileSize>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="STASH" />
+        <appender-ref ref="FILE" />
+    </root>
+</configuration>
